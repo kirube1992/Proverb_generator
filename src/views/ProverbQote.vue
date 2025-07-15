@@ -4,7 +4,7 @@ import proverbs from '../proverb.json';
 const proverb = ref({});
 function getRandomProverb() {
  const index = Math.floor(Math.random() * proverbs.length);
-proverb.value = proverb[index];
+proverb.value = proverbs[index];
 }
 
 getRandomProverb();
@@ -13,8 +13,8 @@ getRandomProverb();
 <template>
     <div class="proverb-quote">
         <h2>Proverb of the day</h2>
-        <p>{{proverb?.value.text}}</p>
-        <p>{{proverb?.value.reference}}</p>
+        <p>{{proverb.text}}</p>
+        <p>{{proverb.reference}}</p>
         <button @click="getRandomProverb">get new Quote</button>
     </div>
 </template>
