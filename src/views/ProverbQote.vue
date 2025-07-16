@@ -28,4 +28,17 @@ getRandomProverb();
         border: 1px solid #ccc;
         border-radius: 8px;
     }
+
+      p {
+        font-size: 1.2em;
+        margin: 15px 0;
+    }
+    cite {
+        font-style: italic;
+        display: block; /* Makes it appear on its own line */
+        margin-top: 10px;
+    }
+    button {
+        margin-top: 20px;
+    }
 </style>
