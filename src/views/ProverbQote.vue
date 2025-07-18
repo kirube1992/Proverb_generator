@@ -1,6 +1,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import elistNguyenImage from '../assets/Images/elist-nguyen-c0z27ZZ69eY-unsplash.jpg';
+
 
 const proverb = ref({ text: '', reference: '' });
 const isLoading = ref(false);
@@ -71,13 +73,14 @@ onMounted(() => {
 
 
 .proverb-quote {
-  max-width: 600px; 
+  background-image: linear-gradient(#b47f24, #b134db);
+  max-width: 800px; 
   text-align: center;
   margin-left: auto;
   margin-right: auto;
-  border: 1px solid #ccc;
+  border: 1px solid #2c7ca0;
   border-radius: 8px;
-  padding: 15px;
+  padding: 35px;
   margin-top:150px;
     }
 
@@ -92,5 +95,8 @@ onMounted(() => {
     }
     button {
         margin-top: 20px;
+        padding: 10px;
+        border:none;
+        border-radius: 8px;
     }
 </style>
