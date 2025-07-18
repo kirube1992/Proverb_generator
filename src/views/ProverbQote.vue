@@ -4,10 +4,10 @@ import { ref, onMounted } from 'vue';
 
 const proverb = ref({ text: '', reference: '' });
 const isLoading = ref(false);
-
+const versesOfTheDay = ref([]); 
 const error = ref(null);
 
-async function getProverbOfTheDay() {
+async function fetchChapterOfTheDay() {
   isLoading.value = true;
   error.value = null;
 
@@ -25,10 +25,18 @@ async function getProverbOfTheDay() {
     // FIX 2: Use lowercase .json()
     const data = await response.json();
 
+    versesOfTheDay.value = data.verses
+
+    if(versesOfTheDay.value.length > 0) {
+      const firstVerse = versesOfTheDay.value[0]
     proverb.value = {
-      text: data.verses[0].text.trim(),
+      text: firstVerse.text.trim(),
       reference: data.reference
     };
+    } else {
+      throw new Error("No verses found for today's chapter.");
+    }
+
   } catch (err) {
     // Corrected spelling for clarity
     console.error("Failed to fetch the proverb", err);
@@ -37,10 +45,30 @@ async function getProverbOfTheDay() {
     // FIX 3 (again): You MUST use .value to change a ref
     isLoading.value = false;
   }
+
+}
+
+function displayRandomVers(){
+  if(versesOfTheDay.value.length === 0) {
+    error.value = "No verse availabel, please refresh";
+    return;
+  }
+
+  const verseCount = versesOfTheDay.value.length
+
+  const randomIndex = Math.floor(Math.random() * verseCount)
+
+  const randomVerse = versesOfTheDay.value[randomIndex];
+
+  proverb.value = {
+    text: randomVerse.text.trim(),
+    reference: `${randomVerse.book_name} ${randomVerse.chapter}:${randomVerse.verse}`
+  }
+
 }
 
 onMounted(() => {
-  getProverbOfTheDay();
+  fetchChapterOfTheDay();
 });
 </script>
 <template>
@@ -64,7 +92,7 @@ onMounted(() => {
     </div>
     
     <!-- Disable the button while loading to prevent multiple clicks -->
-    <button @click="getProverbOfTheDay" :disabled="isLoading">
+    <button @click="displayRandomVers" :disabled="isLoading">
       {{ isLoading ? 'Loading...' : 'Get new Verse' }}
     </button>
   </div>
@@ -89,7 +117,7 @@ onMounted(() => {
       p {
         font-size: 1.2em;
         margin: 15px 0;
-    }s
+    }
     cite {
         font-style: italic;
         display: block; 
@@ -103,7 +131,7 @@ onMounted(() => {
         font-weight: 400;
         background-image: linear-gradient(#cd09a2, #a9431e);
     }
-    botton:hover {
+    button:hover {
       transform: scale(1.2); /* Increases size by 10% */
       transition: transform 0.3s ease; /* Smooth animation */
     }
