@@ -1,21 +1,23 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import elistNguyenImage from '../assets/Images/elist-nguyen-c0z27ZZ69eY-unsplash.jpg';
-
 
 const proverb = ref({ text: '', reference: '' });
 const isLoading = ref(false);
-// FIX 1: Correct spelling of 'ref' and 'null'
+
 const error = ref(null);
 
-async function getRandomProverb() {
-  // FIX 3: You MUST use .value to change a ref
+async function getProverbOfTheDay() {
   isLoading.value = true;
   error.value = null;
 
   try {
-    const response = await fetch('https://api.quotable.io/random');
+
+    const today = new Date();
+    const dayofmonth = today.getDate();
+
+    const apiUrl = `https://bible-api.com/proverbs+${dayofmonth}`;
+    const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error('The data was not found');
     }
@@ -24,8 +26,8 @@ async function getRandomProverb() {
     const data = await response.json();
 
     proverb.value = {
-      text: data.content,
-      reference: data.author
+      text: data.verses[0].text.trim(),
+      reference: data.reference
     };
   } catch (err) {
     // Corrected spelling for clarity
@@ -38,7 +40,7 @@ async function getRandomProverb() {
 }
 
 onMounted(() => {
-  getRandomProverb();
+  getProverbOfTheDay();
 });
 </script>
 <template>
@@ -62,8 +64,8 @@ onMounted(() => {
     </div>
     
     <!-- Disable the button while loading to prevent multiple clicks -->
-    <button @click="getRandomProverb" :disabled="isLoading">
-      {{ isLoading ? 'Loading...' : 'Get new Quote' }}
+    <button @click="getProverbOfTheDay" :disabled="isLoading">
+      {{ isLoading ? 'Loading...' : 'Get new Verse' }}
     </button>
   </div>
 </template>
@@ -95,8 +97,14 @@ onMounted(() => {
     }
     button {
         margin-top: 20px;
-        padding: 10px;
+        padding: 12px;
         border:none;
         border-radius: 8px;
+        font-weight: 400;
+        background-image: linear-gradient(#cd09a2, #a9431e);
+    }
+    botton:hover {
+      transform: scale(1.2); /* Increases size by 10% */
+      transition: transform 0.3s ease; /* Smooth animation */
     }
 </style>
