@@ -67,22 +67,27 @@ onMounted(() => {
 </template>
 
 <style scoped>
-    .proverb-quote {
-        color: #ccc;
-        text-align: center;
-        margin: 20px;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
+
+
+
+.proverb-quote {
+  max-width: 600px; 
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top:150px;
     }
 
       p {
         font-size: 1.2em;
         margin: 15px 0;
-    }
+    }s
     cite {
         font-style: italic;
-        display: block; /* Makes it appear on its own line */
+        display: block; 
         margin-top: 10px;
     }
     button {
