@@ -66,7 +66,6 @@ function displayRandomVers(){
   }
 
 }
-
 onMounted(() => {
   fetchChapterOfTheDay();
 });
@@ -74,34 +73,22 @@ onMounted(() => {
 <template>
   <div class="proverb-quote">
     <h2>Proverb of the day</h2>
-    
-    <!-- Show a loading message while fetching -->
     <div v-if="isLoading">
       <p>Loading...</p>
     </div>
-
-    <!-- Show an error message if something went wrong -->
     <div v-else-if="error">
       <p class="error">{{ error }}</p>
     </div>
-
-    <!-- Show the proverb once it's loaded -->
     <div v-else>
       <p>"{{ proverb.text }}"</p>
       <cite>{{ proverb.reference }}</cite>
     </div>
-    
-    <!-- Disable the button while loading to prevent multiple clicks -->
     <button @click="displayRandomVers" :disabled="isLoading">
       {{ isLoading ? 'Loading...' : 'Get new Verse' }}
     </button>
   </div>
 </template>
-
 <style scoped>
-
-
-
 .proverb-quote {
   background-image: linear-gradient(#b47f24, #b134db);
   max-width: 800px; 
@@ -113,7 +100,6 @@ onMounted(() => {
   padding: 35px;
   margin-top:150px;
     }
-
       p {
         font-size: 1.2em;
         margin: 15px 0;
