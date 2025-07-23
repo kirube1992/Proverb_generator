@@ -2,9 +2,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 
-const proverb = ref({ text: '', reference: '' });
+const currentVerse  = ref({ text: '', reference: '' });
 const isLoading = ref(false);
-const versesOfTheDay = ref([]); 
+const allChapters  = ref([]); 
 const error = ref(null);
 
 async function fetchChapterOfTheDay() {
@@ -13,29 +13,20 @@ async function fetchChapterOfTheDay() {
 
   try {
 
-    const today = new Date();
-    const dayofmonth = today.getDate();
-
-    const apiUrl = `https://bible-api.com/proverbs+${dayofmonth}`;
+    
+    const apiUrl = `/api/chapters`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error('The data was not found');
     }
 
-    // FIX 2: Use lowercase .json()
-    const data = await response.json();
+   
+     allChapters.value = await response.json();
 
-    versesOfTheDay.value = data.verses
+    //currentVerse.value = data;
 
-    if(versesOfTheDay.value.length > 0) {
-      const firstVerse = versesOfTheDay.value[0]
-    proverb.value = {
-      text: firstVerse.text.trim(),
-      reference: data.reference
-    };
-    } else {
-      throw new Error("No verses found for today's chapter.");
-    }
+     displayVerseOfTheDay();
+
 
   } catch (err) {
     // Corrected spelling for clarity
@@ -48,24 +39,35 @@ async function fetchChapterOfTheDay() {
 
 }
 
-function displayRandomVers(){
-  if(versesOfTheDay.value.length === 0) {
+function displayVerseOfTheDay() {
+
+  if(allChapters.value.length === 0) {
     error.value = "No verse availabel, please refresh";
     return;
   }
 
-  const verseCount = versesOfTheDay.value.length
+    const today = new Date();
+    const dayOfMonth = today.getDate();
+
+  const todaysChapter = allChapters.value.find(chap => Number(chap.chapter) === dayOfMonth);
+     if (!todaysChapter) {
+    error.value = `No proverbs found for day ${dayOfMonth}.`;
+    return;
+  }
+
+  const verseCount = todaysChapter.verses.length
 
   const randomIndex = Math.floor(Math.random() * verseCount)
 
-  const randomVerse = versesOfTheDay.value[randomIndex];
+  const randomVerseText = todaysChapter.verses[randomIndex];
 
-  proverb.value = {
-    text: randomVerse.text.trim(),
-    reference: `${randomVerse.book_name} ${randomVerse.chapter}:${randomVerse.verse}`
+    currentVerse.value = {
+    text: randomVerseText,
+    // We construct the reference ourselves now
+    reference: `ምሳሌ ${todaysChapter.chapter}:${randomIndex + 1}`
   }
-
 }
+
 onMounted(() => {
   fetchChapterOfTheDay();
 });
@@ -80,10 +82,10 @@ onMounted(() => {
       <p class="error">{{ error }}</p>
     </div>
     <div v-else>
-      <p>"{{ proverb.text }}"</p>
-      <cite>{{ proverb.reference }}</cite>
+      <p>"{{ currentVerse.text }}"</p>
+      <cite>{{ currentVerse.reference }}</cite>
     </div>
-    <button @click="displayRandomVers" :disabled="isLoading">
+    <button @click="displayVerseOfTheDay" :disabled="isLoading">
       {{ isLoading ? 'Loading...' : 'Get new Verse' }}
     </button>
   </div>

@@ -7,6 +7,16 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+    server: {
+    proxy: {
+      // Any request starting with '/api' will be proxied
+      '/api': {
+        target: 'http://localhost:3000', // The address of your API server
+        changeOrigin: true, // Needed for virtual hosted sites
+        rewrite: (path) => path.replace(/^\/api/, '') // Remove '/api' before sending to the target
+      }
+    }
+  },
   plugins: [
     vue(),
     vueJsx(),
