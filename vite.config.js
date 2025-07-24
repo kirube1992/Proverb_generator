@@ -36,7 +36,7 @@ export default defineConfig({
             type: 'image/png'
           },
           {
-            src: '/icon.png',
+            src: '/android.png',
             sizes: '512x512',
             type: 'image/png'
           }
