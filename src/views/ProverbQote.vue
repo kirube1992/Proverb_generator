@@ -12,15 +12,12 @@ async function fetchChapterOfTheDay() {
   error.value = null;
 
   try {
-
-    
     const apiUrl = `/api/chapters`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error('The data was not found');
     }
 
-   
      allChapters.value = await response.json();
 
     //currentVerse.value = data;
