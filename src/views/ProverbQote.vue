@@ -8,35 +8,69 @@ const isLoading = ref(false);
 const allChapters  = ref([]); 
 const error = ref(null);
 
-async function fetchChapterOfTheDay() {
+// async function fetchChapterOfTheDay() {
+//   isLoading.value = true;
+//   error.value = null;
+
+//   try {
+//     const apiUrl = `https://proverb-api-data.vercel.app/chapters`;
+//     const response = await fetch(apiUrl);
+//     if (!response.ok) {
+//       throw new Error('The data was not found');
+//     }
+
+//      allChapters.value = await response.json();
+
+//     //currentVerse.value = data;
+
+//     await checkAndSendDailyNotification(currentVerse.value.text, currentVerse.value.reference);
+
+//      displayVerseOfTheDay();
+
+
+//   } catch (err) {
+//     // Corrected spelling for clarity
+//     console.error("Failed to fetch the proverb", err);
+//     error.value = 'Sorry, we couldn\'t fetch the proverb. Please try again.';
+//   } finally {
+//     // FIX 3 (again): You MUST use .value to change a ref
+//     isLoading.value = false;
+//   }
+
+// }
+
+async function fetchProverbsData() {
   isLoading.value = true;
   error.value = null;
 
   try {
-    const apiUrl = `https://proverb-api-data.vercel.app/chapters`;
+    // We fetch from the base URL now, as it returns the whole object
+    const apiUrl = `https://proverb-api-data.vercel.app/`; 
+    
     const response = await fetch(apiUrl);
     if (!response.ok) {
-      throw new Error('The data was not found');
+      throw new Error("Could not connect to the API.");
     }
+    
+    // Get the whole object: { chapters: [...] }
+    const data = await response.json(); 
 
-     allChapters.value = await response.json();
+    // IMPORTANT: Access the .chapters property from the returned data
+    allChapters.value = data.chapters; 
 
-    //currentVerse.value = data;
-
-    await checkAndSendDailyNotification(currentVerse.value.text, currentVerse.value.reference);
-
-     displayVerseOfTheDay();
-
+    // Safety check if the chapters array is missing or empty
+    if (!allChapters.value || allChapters.value.length === 0) {
+      throw new Error("The 'chapters' array was not found in the API response.");
+    }
+    
+    displayVerseOfTheDay();
 
   } catch (err) {
-    // Corrected spelling for clarity
-    console.error("Failed to fetch the proverb", err);
-    error.value = 'Sorry, we couldn\'t fetch the proverb. Please try again.';
+    console.error("Error fetching data:", err);
+    error.value = "Sorry, we couldn't load the proverbs. Please try again.";
   } finally {
-    // FIX 3 (again): You MUST use .value to change a ref
     isLoading.value = false;
   }
-
 }
 
 function displayVerseOfTheDay() {
