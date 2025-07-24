@@ -13,7 +13,7 @@ async function fetchChapterOfTheDay() {
   error.value = null;
 
   try {
-    const apiUrl = `https://proverb-api-data.vercel.app/`;
+    const apiUrl = `https://proverb-api-data.vercel.app/chapters`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error('The data was not found');
