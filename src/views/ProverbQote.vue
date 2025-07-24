@@ -1,6 +1,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { requestNotificationPermission, checkAndSendDailyNotification } from '../notification.js';
 
 const currentVerse  = ref({ text: '', reference: '' });
 const isLoading = ref(false);
@@ -21,6 +22,8 @@ async function fetchChapterOfTheDay() {
      allChapters.value = await response.json();
 
     //currentVerse.value = data;
+
+    await checkAndSendDailyNotification(currentVerse.value.text, currentVerse.value.reference);
 
      displayVerseOfTheDay();
 
@@ -62,6 +65,17 @@ function displayVerseOfTheDay() {
     text: randomVerseText,
     // We construct the reference ourselves now
     reference: `ምሳሌ ${todaysChapter.chapter}:${randomIndex + 1}`
+
+  };
+   checkAndSendDailyNotification(currentVerse.value.text, currentVerse.value.reference);
+}
+
+async function enableNotifications() {
+  try {
+    await requestNotificationPermission();
+    alert('Notifications have been enabled!');
+  } catch (error) {
+    alert('Failed to enable notifications. Please check your browser settings.');
   }
 }
 
@@ -82,9 +96,13 @@ onMounted(() => {
       <p>"{{ currentVerse.text }}"</p>
       <cite>{{ currentVerse.reference }}</cite>
     </div>
-    <button @click="displayVerseOfTheDay" :disabled="isLoading">
+    <button class="btn1"  @click="displayVerseOfTheDay" :disabled="isLoading">
       {{ isLoading ? 'Loading...' : 'Get new Verse' }}
-    </button>
+    </button >
+    <br></br>
+      <button @click="enableNotifications" class="notification-btn">
+    Enable Daily Notifications
+  </button>
   </div>
 </template>
 <style scoped>
@@ -119,5 +137,9 @@ onMounted(() => {
     button:hover {
       transform: scale(1.2); /* Increases size by 10% */
       transition: transform 0.3s ease; /* Smooth animation */
+    }
+
+    .btn1 {
+       margin-left: 5px;
     }
 </style>
