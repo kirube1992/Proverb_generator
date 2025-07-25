@@ -165,7 +165,7 @@ async function enableNotifications() {
 }
 
 onMounted(() => {
-  fetchChapterOfTheDay();
+  fetchProverbsData();
 });
 </script>
 <template>
