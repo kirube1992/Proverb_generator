@@ -184,7 +184,7 @@ async function fetchProverbsData() {
   error.value = null;
 
   try {
-    const apiUrl = `https://raw.githubusercontent.com/kirube1992/final-proverb-db/main/db.json`; // Your correct API URL
+    const apiUrl = `https://raw.githubusercontent.com/kirube1992/proverb-api-data/refs/heads/main/db.json`; 
     
     const response = await fetch(apiUrl);
     if (!response.ok) {
