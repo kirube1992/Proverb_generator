@@ -247,6 +247,7 @@ onMounted(() => {
 });
 </script>
 <template>
+  <div class="page-container">
   <div class="proverb-quote">
     <h2>Proverb of the day</h2>
     <div v-if="isLoading">
@@ -267,42 +268,55 @@ onMounted(() => {
     Enable Daily Notifications
   </button>
   </div>
+</div>
 </template>
 <style scoped>
+.page-container {
+  display: flex;
+  justify-content: center;  /* horizontal center */
+  align-items: center;      /* vertical center */
+  min-height: 100vh;        /* full screen height */
+  padding: 20px;            /* fallback padding */
+  box-sizing: border-box;
+}
+
 .proverb-quote {
   background-image: linear-gradient(#b47f24, #b134db);
-  max-width: 800px; 
+  max-width: 800px;
   text-align: center;
-  margin-left: auto;
-  margin-right: auto;
   border: 1px solid #2c7ca0;
   border-radius: 8px;
   padding: 35px;
-  margin-top:150px;
-    }
-      p {
-        font-size: 1.2em;
-        margin: 15px 0;
-    }
-    cite {
-        font-style: italic;
-        display: block; 
-        margin-top: 10px;
-    }
-    button {
-        margin-top: 20px;
-        padding: 12px;
-        border:none;
-        border-radius: 8px;
-        font-weight: 400;
-        background-image: linear-gradient(#cd09a2, #a9431e);
-    }
-    button:hover {
-      transform: scale(1.2); /* Increases size by 10% */
-      transition: transform 0.3s ease; /* Smooth animation */
-    }
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
 
-    .btn1 {
-       margin-left: 5px;
-    }
+p {
+  font-size: 1.2em;
+  margin: 15px 0;
+}
+
+cite {
+  font-style: italic;
+  display: block;
+  margin-top: 10px;
+}
+
+button {
+  margin-top: 20px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 400;
+  background-image: linear-gradient(#cd09a2, #a9431e);
+  color: white;
+}
+
+button:hover {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+.btn1 {
+  margin-left: 5px;
+}
 </style>
