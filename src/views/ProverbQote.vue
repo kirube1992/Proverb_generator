@@ -39,37 +39,88 @@ const error = ref(null);
 
 // }
 
+// async function fetchProverbsData() {
+//   isLoading.value = true;
+//   error.value = null;
+
+//   try {
+//     // We fetch from the base URL now, as it returns the whole object
+//     const apiUrl = `https://proverb-api-data.vercel.app/`; 
+    
+//     const response = await fetch(apiUrl);
+//     if (!response.ok) {
+//       throw new Error("Could not connect to the API.");
+//     }
+    
+//     // Get the whole object: { chapters: [...] }
+//     const data = await response.json(); 
+
+//     // IMPORTANT: Access the .chapters property from the returned data
+//     allChapters.value = data.chapters; 
+
+//     // Safety check if the chapters array is missing or empty
+//     if (!allChapters.value || allChapters.value.length === 0) {
+//       throw new Error("The 'chapters' array was not found in the API response.");
+//     }
+    
+//     displayVerseOfTheDay();
+
+//   } catch (err) {
+//     console.error("Error fetching data:", err);
+//     error.value = "Sorry, we couldn't load the proverbs. Please try again.";
+//   } finally {
+//     isLoading.value = false;
+//   }
+// }
+
+// Replace your existing fetchProverbsData function with this one.
+
 async function fetchProverbsData() {
   isLoading.value = true;
   error.value = null;
+  console.log("--- Starting Fetch Process ---");
 
   try {
-    // We fetch from the base URL now, as it returns the whole object
-    const apiUrl = `https://proverb-api-data.vercel.app/`; 
-    
+    const apiUrl = `https://proverb-api-data.vercel.app/chapters`;
+    console.log("1. Fetching from URL:", apiUrl);
+
     const response = await fetch(apiUrl);
+    console.log("2. Received response. Status:", response.status, response.statusText);
+
+    // This is a check for network errors (like 404 or 500)
     if (!response.ok) {
-      throw new Error("Could not connect to the API.");
+      throw new Error(`API responded with status: ${response.status}`);
     }
-    
-    // Get the whole object: { chapters: [...] }
-    const data = await response.json(); 
 
-    // IMPORTANT: Access the .chapters property from the returned data
-    allChapters.value = data.chapters; 
+    // This is a crucial debugging step. We'll check the raw text of the response
+    // before we try to parse it as JSON.
+    const rawText = await response.text();
+    console.log("3. Raw text from API:", rawText);
 
-    // Safety check if the chapters array is missing or empty
-    if (!allChapters.value || allChapters.value.length === 0) {
-      throw new Error("The 'chapters' array was not found in the API response.");
+    // Now, we try to parse the raw text as JSON.
+    // If the rawText is not valid JSON, this line will fail and jump to the catch block.
+    const data = JSON.parse(rawText);
+    console.log("4. Successfully parsed JSON. Data:", data);
+
+    // Check if the data is an array as we expect.
+    if (!Array.isArray(data)) {
+        throw new Error("The API did not return an array of chapters.");
     }
-    
+
+    // Assign the data to our state.
+    allChapters.value = data;
+    console.log("5. Successfully assigned data to allChapters. It now has", allChapters.value.length, "items.");
+
+    // After everything is successful, display the verse.
     displayVerseOfTheDay();
 
   } catch (err) {
-    console.error("Error fetching data:", err);
-    error.value = "Sorry, we couldn't load the proverbs. Please try again.";
+    // This will catch any error from the steps above.
+    console.error("!!! An error occurred in the fetch process:", err);
+    error.value = "Sorry, a critical error occurred while loading proverbs.";
   } finally {
     isLoading.value = false;
+    console.log("--- Finished Fetch Process ---");
   }
 }
 
