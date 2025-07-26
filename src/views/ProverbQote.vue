@@ -208,7 +208,7 @@ button:hover {
 
 .notification-btn {
   background-image: linear-gradient(to right, #6a3093, #a044ff);
-  margin: 0 20px;
+  margin: 20px 20px;
 }
 
 /* --- THE NEW, BEAUTIFUL SCHEDULER STYLES --- */
