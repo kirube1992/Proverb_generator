@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-// import { requestNotificationPermission, checkAndSendDailyNotification } from '../notification.js';
 import {
   requestNotificationPermission,
   checkAndSendScheduledNotification,
@@ -9,75 +8,62 @@ import {
 // --- STATE ---
 const currentVerse = ref({ text: '', reference: '' })
 const allChapters = ref([])
+const smartProverbs = ref([]) // Standardized to plural
+const availableProverbs = ref([])
+
 const isLoading = ref(false)
 const error = ref(null)
 const notificationTime = ref('')
 const notificationsEnabled = ref(false)
 const isScheduling = ref(false)
-const smartProverb = ref([])
 
-function processProverbIntotoughts(chapter) {
+// --- FUNCTIONS ---
+
+// Renamed and corrected function
+function processProverbsIntoThoughts(chaptersArray) {
   const allThoughts = []
-  chapter.array.forEach((chapters) => {
-    let currentTought = ''
-    let startVerse = 1
-    chapters.verseCount.forEach((verseText, index) => {
-      currentTought += verseText + ' '
 
-      if (verseText.trim().endWith('።')) {
+  // FIX #2: Use a different name for the loop variable to avoid shadowing
+  chaptersArray.forEach((chapterObject) => {
+    let currentThought = ''
+    let startVerse = 1
+
+    chapterObject.verses.forEach((verseText, index) => {
+      currentThought += verseText + ' '
+
+      // FIX #1: Correct spelling of 'endsWith'
+      if (verseText.trim().endsWith('።')) {
         allThoughts.push({
-          text: currentTought.trim(),
-          reference: `ምሳሌ ${chapter.chapter}:${startVerse}-${index + 1}`,
+          text: currentThought.trim(),
+          reference: `ምሳሌ ${chapterObject.chapter}:${startVerse}-${index + 1}`,
         })
-        currentTought = ''
+        currentThought = ''
         startVerse = index + 2
       }
     })
   })
-  smartProverb.value = currentTought
-}
 
-async function enableNotifications() {
-  try {
-    await requestNotificationPermission()
-    notificationsEnabled.value = true
-    isScheduling.value = true
-    alert(
-      'Notifications have been enabled! You will receive a proverb the first time you open the app each day after your chosen time.',
-    )
-  } catch (err) {
-    alert(
-      'Failed to enable notifications. Please check your browser settings and allow notifications for this site.',
-    )
-  }
+  smartProverbs.value = allThoughts
+  availableProverbs.value = [...allThoughts]
+  console.log(`Processed into ${smartProverbs.value.length} smart proverbs.`)
 }
 
 async function fetchProverbsData() {
   isLoading.value = true
   error.value = null
-
   try {
+    // const apiUrl = `https://raw.githubusercontent.com/kirube1992/final-proverb-db/main/db.json`
     const apiUrl = `https://raw.githubusercontent.com/kirube1992/proverb-api-data/refs/heads/main/db.json`
-
     const response = await fetch(apiUrl)
-    if (!response.ok) {
-      throw new Error('Could not fetch the proverbs database from GitHub.')
-    }
+    if (!response.ok) throw new Error('Could not fetch the proverbs database.')
 
     const data = await response.json()
+    if (!data.chapters || !Array.isArray(data.chapters))
+      throw new Error('Database format is incorrect.')
 
-    // This is a key check. Does the downloaded data have a 'chapters' array?
-    if (!data.chapters || !Array.isArray(data.chapters)) {
-      throw new Error("Database format is incorrect. The 'chapters' array was not found.")
-    }
-
-    // If the check passes, store the chapters.
     allChapters.value = data.chapters
-
-    // After successfully loading and storing the data, display a verse.
+    processProverbsIntoThoughts(allChapters.value)
     displayVerseOfTheDay()
-
-    // await checkAndSendDailyNotification(currentVerse.value.text, currentVerse.value.reference);
   } catch (err) {
     console.error('Error during fetch or data processing:', err)
     error.value = 'Sorry, a critical error occurred while loading the proverbs.'
@@ -87,34 +73,37 @@ async function fetchProverbsData() {
 }
 
 function displayVerseOfTheDay() {
-  if (allChapters.value.length === 0) {
-    // This function can't run if there's no data.
-    return
+  if (availableProverbs.value.length === 0) {
+    if (smartProverbs.value.length > 0) {
+      console.log('All proverbs shown. Resetting the list.')
+      availableProverbs.value = [...smartProverbs.value]
+    } else {
+      return
+    }
   }
 
-  const today = new Date()
-  const dayOfMonth = today.getDate()
+  const randomIndex = Math.floor(Math.random() * availableProverbs.value.length)
+  const randomThought = availableProverbs.value[randomIndex]
 
-  // Find today's chapter from the data we stored.
-  const todaysChapter = allChapters.value.find((chap) => Number(chap.chapter) === dayOfMonth)
-
-  if (!todaysChapter) {
-    error.value = `No proverbs found in the database for day ${dayOfMonth}.`
-    return
-  }
-
-  // Pick a random verse from today's chapter.
-  const verseCount = todaysChapter.verses.length
-  const randomIndex = Math.floor(Math.random() * verseCount)
-  const randomVerseText = todaysChapter.verses[randomIndex]
-
-  // Update the UI.
   currentVerse.value = {
-    text: randomVerseText,
-    reference: `ምሳሌ ${todaysChapter.chapter}:${randomIndex + 1}`,
+    text: randomThought.text,
+    reference: randomThought.reference,
   }
 
+  availableProverbs.value.splice(randomIndex, 1)
+  console.log(`${availableProverbs.value.length} proverbs remaining in this session.`)
   checkAndSendScheduledNotification(currentVerse.value.text, currentVerse.value.reference)
+}
+
+// --- UI Helper Functions ---
+async function enableNotifications() {
+  try {
+    await requestNotificationPermission()
+    notificationsEnabled.value = true
+    isScheduling.value = true
+  } catch (err) {
+    alert('Failed to enable notifications. Please check your browser settings.')
+  }
 }
 
 function saveNotificationTime() {
@@ -122,16 +111,12 @@ function saveNotificationTime() {
     alert('Please select a time.')
     return
   }
-
   localStorage.setItem('proverb_notification_time', notificationTime.value)
   alert(`Notification time saved for ${notificationTime.value}!`)
-
   isScheduling.value = false
 }
 
-// Add this new function to your script
 function editNotificationTime() {
-  // Simply open the scheduler UI again
   isScheduling.value = true
 }
 
@@ -142,7 +127,6 @@ onMounted(() => {
   if (savedTime) {
     notificationTime.value = savedTime
   }
-  // const wereEnabled = localStorage.getItem('proverb_notifications_enabled');
   if (Notification.permission === 'granted') {
     notificationsEnabled.value = true
   }
