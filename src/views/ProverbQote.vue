@@ -14,9 +14,28 @@ const error = ref(null)
 const notificationTime = ref('')
 const notificationsEnabled = ref(false)
 const isScheduling = ref(false)
-// --- FUNCTIONS ---
+const smartProverb = ref([])
 
-// Add this function anywhere inside your <script setup> block
+function processProverbIntotoughts(chapter) {
+  const allThoughts = []
+  chapter.array.forEach((chapters) => {
+    let currentTought = ''
+    let startVerse = 1
+    chapters.verseCount.forEach((verseText, index) => {
+      currentTought += verseText + ' '
+
+      if (verseText.trim().endWith('።')) {
+        allThoughts.push({
+          text: currentTought.trim(),
+          reference: `ምሳሌ ${chapter.chapter}:${startVerse}-${index + 1}`,
+        })
+        currentTought = ''
+        startVerse = index + 2
+      }
+    })
+  })
+  smartProverb.value = currentTought
+}
 
 async function enableNotifications() {
   try {
@@ -103,7 +122,7 @@ function saveNotificationTime() {
     alert('Please select a time.')
     return
   }
-  // Store the selected time (e.g., "08:00") in the browser's memory
+
   localStorage.setItem('proverb_notification_time', notificationTime.value)
   alert(`Notification time saved for ${notificationTime.value}!`)
 
